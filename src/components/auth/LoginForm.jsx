@@ -1,15 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserShield } from '@fortawesome/free-solid-svg-icons';
+import { faUserShield, faEye, faEyeSlash, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { login } from '../state/authentication/Action'; // Update the import path if necessary
+import './styles/LoginForm.css'; 
 
 const LoginForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const initialValues = {
     username: '',
@@ -23,9 +27,15 @@ const LoginForm = () => {
 
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     try {
-      dispatch(login(values, navigate)); // Pass navigate to the login action creator
+      setIsLoading(true);
+      // Simulate a delay of 1 second before dispatching the login action and navigating
+      setTimeout(() => {
+        dispatch(login(values, navigate)); // Pass navigate to the login action creator
+        setIsLoading(false);
+      }, 1000);
     } catch (error) {
       setErrors({ general: 'Login failed. Please try again.' });
+      setIsLoading(false);
     } finally {
       setSubmitting(false);
     }
@@ -33,7 +43,7 @@ const LoginForm = () => {
 
   return (
     <div className="flex items-center justify-center min-h-[85vh] bg-gray-900">
-      <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
+      <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md animate-fade-in">
         <div className="flex justify-center mb-4">
           <FontAwesomeIcon icon={faUserShield} className="text-white text-5xl" />
         </div>
@@ -52,29 +62,37 @@ const LoginForm = () => {
                   type="text"
                   id="username"
                   name="username"
-                  className="w-full px-4 py-2 text-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 text-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 transition duration-300"
                   placeholder="Enter your username"
                 />
                 <ErrorMessage name="username" component="div" className="text-red-500 text-sm mt-1" />
               </div>
               <div className="mb-6">
                 <label htmlFor="password" className="block text-white text-sm font-medium mb-2">Password</label>
-                <Field
-                  type="password"
-                  id="password"
-                  name="password"
-                  className="w-full px-4 py-2 text-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
-                  placeholder="Enter your password"
-                />
+                <div className="relative">
+                  <Field
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    name="password"
+                    className="w-full px-4 py-2 text-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 transition duration-300"
+                    placeholder="Enter your password"
+                  />
+                  <span
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3 cursor-pointer text-gray-600"
+                  >
+                    <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                  </span>
+                </div>
                 <ErrorMessage name="password" component="div" className="text-red-500 text-sm mt-1" />
               </div>
               <div className="flex items-center justify-center">
                 <button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="bg-black w-full hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  disabled={isSubmitting || isLoading}
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 w-full hover:from-purple-500 hover:to-blue-500 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 flex items-center justify-center"
                 >
-                  Sign In
+                  {isLoading ? <FontAwesomeIcon icon={faSpinner} className="animate-spin" /> : 'Sign In'}
                 </button>
               </div>
             </Form>

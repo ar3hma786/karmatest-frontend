@@ -1,0 +1,28 @@
+/* LoginForm.css */
+
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 1s ease-in-out;
+  }
+  
+  input:focus {
+    outline: none;
+  }
+  
+  input, button {
+    transition: all 0.3s ease-in-out;
+  }
+  
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
