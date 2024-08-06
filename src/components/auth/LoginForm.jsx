@@ -4,13 +4,17 @@ import * as Yup from 'yup';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserShield } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { login } from '../state/authentication/Action'; // Update the import path if necessary
 
 const LoginForm = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const initialValues = {
     username: '',
     password: '',
   };
-  const navigate = useNavigate();
 
   const validationSchema = Yup.object({
     username: Yup.string().required('Required'),
@@ -19,13 +23,8 @@ const LoginForm = () => {
 
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     try {
-      // Simulate a form submission. Replace this with actual API call if needed.
-      // await api.login(values);
-      
-      // On successful login
-      navigate("/admin");
+      dispatch(login(values, navigate)); // Pass navigate to the login action creator
     } catch (error) {
-      // Handle errors if the API call fails
       setErrors({ general: 'Login failed. Please try again.' });
     } finally {
       setSubmitting(false);
@@ -38,9 +37,7 @@ const LoginForm = () => {
         <div className="flex justify-center mb-4">
           <FontAwesomeIcon icon={faUserShield} className="text-white text-5xl" />
         </div>
-        <h1 className="text-3xl text-white mb-6 text-center">
-          Admin Login
-        </h1>
+        <h1 className="text-3xl text-white mb-6 text-center">Admin Login</h1>
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
@@ -50,9 +47,7 @@ const LoginForm = () => {
             <Form>
               {errors.general && <div className="text-red-500 text-sm mb-4">{errors.general}</div>}
               <div className="mb-5">
-                <label htmlFor="username" className="block text-white text-sm font-medium mb-2">
-                  Username
-                </label>
+                <label htmlFor="username" className="block text-white text-sm font-medium mb-2">Username</label>
                 <Field
                   type="text"
                   id="username"
@@ -63,9 +58,7 @@ const LoginForm = () => {
                 <ErrorMessage name="username" component="div" className="text-red-500 text-sm mt-1" />
               </div>
               <div className="mb-6">
-                <label htmlFor="password" className="block text-white text-sm font-medium mb-2">
-                  Password
-                </label>
+                <label htmlFor="password" className="block text-white text-sm font-medium mb-2">Password</label>
                 <Field
                   type="password"
                   id="password"

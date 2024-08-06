@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
 function Header() {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isNavbarOpen, setIsNavbarOpen] = useState(false);
+  
 
-  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
-  const toggleNavbar = () => setIsNavbarOpen(!isNavbarOpen);
 
   // Close dropdown when clicking outside
   useEffect(() => {

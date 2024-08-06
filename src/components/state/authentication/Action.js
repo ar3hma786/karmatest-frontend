@@ -1,27 +1,34 @@
-import axios from 'axios';
 import {
   LOGIN_REQUEST,
   LOGIN_SUCCESS,
   LOGIN_FAILURE,
   LOGOUT,
 } from './ActionTypes';
-import { API_BASE_URL } from '../../config/api';
+import api from '../../config/apiConfig';
 
 // Login action creators
 const loginRequest = () => ({ type: LOGIN_REQUEST });
 const loginSuccess = user => ({ type: LOGIN_SUCCESS, payload: user });
 const loginFailure = error => ({ type: LOGIN_FAILURE, payload: error });
 
-export const login = userData => async dispatch => {
+// Pass navigate as an argument here
+export const login = (userData, navigate) => async dispatch => {
   dispatch(loginRequest());
   try {
-    const response = await axios.post(`${API_BASE_URL}/auth/signin`, userData);
-    const user = response.data;
-    if (user.jwt) localStorage.setItem('jwt', user.jwt);
-    console.log('login ', user);
-    dispatch(loginSuccess(user));
+    const response = await api.post('/auth/signin', userData); // Use userData directly
+    const data = response.data;
+
+    if (data.jwt) {
+      localStorage.setItem('jwt', data.jwt);
+      api.defaults.headers.common['Authorization'] = `Bearer ${data.jwt}`; // Set JWT in axios headers
+      dispatch(loginSuccess(data.jwt));
+      navigate('/admin'); // Navigate to /admin after successful login
+    } else {
+      dispatch(loginFailure('Invalid credentials'));
+      navigate('/');
+    }
   } catch (error) {
-    dispatch(loginFailure(error.message));
+    dispatch(loginFailure('Login failed. Please try again.'));
   }
 };
 
