@@ -70,29 +70,29 @@ const AdminDashboard = () => {
 
   const handleUserMenuClose = () => {
     setUserMenuAnchorEl(null);
-    dispatch(logout(navigate("/")));
+    setTimeout(() => {
+      dispatch(logout());
+      navigate("/");
+    }, 1000);
   };
 
   return (
-    <div style={{ backgroundColor: '#f0f0f0', minHeight: '100vh' }}>
-      <Container style={{ padding: 0, marginTop: 0, paddingTop: "1.5rem" }}>
+    <div style={{ backgroundColor: '#f5f5f5', minHeight: '100vh', padding: '2rem 0' }}>
+      <Container>
         {/* User Dropdown Menu and Action Buttons */}
-        <Box display="flex" justifyContent="flex-end" mb={2}>
+        <Box display="flex" justifyContent="flex-end" mb={4}>
           <IconButton>
             <Download />
           </IconButton>
           <IconButton>
             <Print />
           </IconButton>
-          <IconButton
-            onClick={handleUserMenuClick}
-          >
+          <IconButton onClick={handleUserMenuClick}>
             <Person />
           </IconButton>
           <Menu
             anchorEl={userMenuAnchorEl}
             open={Boolean(userMenuAnchorEl)}
-            onClose={handleUserMenuClose}
             PaperProps={{
               style: {
                 width: 200
@@ -103,15 +103,16 @@ const AdminDashboard = () => {
           </Menu>
         </Box>
 
-        <Box  mb={2}>
-          <Typography variant="h5" gutterBottom>
+        <Box mb={3}>
+          <Typography variant="h4" gutterBottom style={{ fontWeight: 600, color: '#333' }}>
             Sales List
           </Typography>
-          <Typography variant="subtitle1" gutterBottom>
+          <Typography variant="subtitle1" gutterBottom style={{ color: '#555' }}>
             Manage Your Sales
           </Typography>
         </Box>
-        <Box display="flex" justifyContent="space-between" mb={2}>
+        
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
           <TextField
             variant="outlined"
             placeholder="Search"
@@ -125,14 +126,14 @@ const AdminDashboard = () => {
               ),
             }}
             sx={{
-              width: 400, // Adjust width as needed
-              height: 40, // Adjust height as needed
-              borderRadius: '20px', // Make the corners rounded
+              width: { xs: '100%', md: 400 }, // Responsive width
+              height: 40,
+              borderRadius: '20px',
               '& .MuiOutlinedInput-root': {
-                borderRadius: '20px', // Ensure the border radius applies to the input
+                borderRadius: '20px',
               },
               '& .MuiInputBase-input': {
-                padding: '10px', // Adjust padding to align text properly
+                padding: '10px',
               }
             }}
           />
@@ -142,9 +143,10 @@ const AdminDashboard = () => {
               variant="contained"
               startIcon={<Add />}
               sx={{
-                backgroundColor: '#333', // Custom gray color (equivalent to bg-gray-800)
+                backgroundColor: '#000000',
+                color: '#fff',
                 '&:hover': {
-                  backgroundColor: '#444', // Darker gray for hover state
+                  backgroundColor: '#333333',
                 },
               }}
             >
@@ -154,11 +156,11 @@ const AdminDashboard = () => {
               variant="outlined"
               startIcon={<FilterList />}
               sx={{
-                borderColor: '#333', // Custom gray color
-                color: '#333', // Text color
+                borderColor: '#000000',
+                color: '#000000',
                 '&:hover': {
-                  borderColor: '#444', // Darker gray for hover state
-                  color: '#444',
+                  borderColor: '#333333',
+                  color: '#333333',
                 },
               }}
             >
@@ -166,7 +168,8 @@ const AdminDashboard = () => {
             </Button>
           </Box>
         </Box>
-        <TableContainer component={Paper}>
+
+        <TableContainer component={Paper} sx={{ boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
           <Table>
             <TableHead>
               <TableRow>
