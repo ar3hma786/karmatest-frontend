@@ -97,6 +97,12 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleAddSale = () => {
+    // Logic to add a new sale
+    // For example, you might navigate to a different page or show a form
+    navigate('/add-sale'); // Navigate to add-sale page
+  };
+
   return (
     <div style={{ backgroundColor: '#f5f5f5', minHeight: '100vh', padding: '2rem 0' }}>
       <Container>
@@ -165,6 +171,7 @@ const AdminDashboard = () => {
             <Button
               variant="contained"
               startIcon={<Add />}
+              onClick={handleAddSale} // Call handleAddSale on button click
               sx={{
                 backgroundColor: '#000000',
                 color: '#fff',
@@ -173,7 +180,7 @@ const AdminDashboard = () => {
                 },
               }}
             >
-              Add New Sales
+              Add New Sale
             </Button>
             <Button
               variant="outlined"
