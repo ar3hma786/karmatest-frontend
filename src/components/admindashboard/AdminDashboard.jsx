@@ -35,7 +35,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../state/authentication/Action';
-import { getSales } from '../state/sales/Action'; // Import getSales action
+import { getSales, deleteSale } from '../state/sales/Action';
 
 const AdminDashboard = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -89,6 +89,13 @@ const AdminDashboard = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [dispatch]);
+
+  const handleDeleteSale = () => {
+    if (selectedSale) {
+      dispatch(deleteSale(selectedSale.id));
+      handleClose(); // Close the menu after deletion
+    }
+  };
 
   return (
     <div style={{ backgroundColor: '#f5f5f5', minHeight: '100vh', padding: '2rem 0' }}>
@@ -260,7 +267,7 @@ const AdminDashboard = () => {
                         <MenuItem onClick={handleClose}>
                           <Download /> Download PDF
                         </MenuItem>
-                        <MenuItem onClick={handleClose}>
+                        <MenuItem onClick={handleDeleteSale}>
                           <Delete /> Delete Sale
                         </MenuItem>
                       </Menu>
