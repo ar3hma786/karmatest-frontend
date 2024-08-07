@@ -32,28 +32,40 @@ import {
   Person,
   Print,
 } from '@mui/icons-material';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../state/authentication/Action';
-
-const salesData = [
-  { customer: 'Thomas', reference: 'SL0101', date: '19 Jan 2023', status: 'Completed', total: 550, paid: 550, due: 0, paymentStatus: 'Paid', biller: 'Admin' },
-  { customer: 'Rose', reference: 'SL0102', date: '26 Jan 2023', status: 'Completed', total: 250, paid: 250, due: 0, paymentStatus: 'Paid', biller: 'Admin' },
-  { customer: 'Benjamin', reference: 'SL0103', date: '08 Feb 2023', status: 'Completed', total: 570, paid: 570, due: 0, paymentStatus: 'Paid', biller: 'Admin' },
-  { customer: 'Lilly', reference: 'SL0104', date: '12 Feb 2023', status: 'Pending', total: 300, paid: 0, due: 300, paymentStatus: 'Due', biller: 'Admin' },
-  { customer: 'Freda', reference: 'SL0105', date: '17 Mar 2023', status: 'Pending', total: 700, paid: 0, due: 700, paymentStatus: 'Due', biller: 'Admin' },
-  { customer: 'Alwin', reference: 'SL0106', date: '24 Mar 2023', status: 'Completed', total: 400, paid: 400, due: 0, paymentStatus: 'Paid', biller: 'Admin' },
-  { customer: 'Maybelle', reference: 'SL0107', date: '06 Apr 2023', status: 'Pending', total: 120, paid: 0, due: 120, paymentStatus: 'Due', biller: 'Admin' },
-];
+import { getSales } from '../state/sales/Action';
 
 const AdminDashboard = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedSale, setSelectedSale] = useState(null);
   const [userMenuAnchorEl, setUserMenuAnchorEl] = useState(null);
+  const [salesData, setSalesData] = useState(useSelector((state) => state.adminSales)); // State for sales data
+  const [loading, setLoading] = useState(true); // State for loading
   const userMenuRef = useRef(null);
-  
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+   
+  useEffect(() => {
+    const fetchSalesData = async () => {
+      try {
+        const response = await dispatch(getSales());
+        if (response && response.payload) {
+          setSalesData(response.payload);
+          console.log(salesData);
+        }
+      } catch (error) {
+        console.error('Failed to fetch sales data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSalesData();
+  }, [dispatch]);
 
   const handleClick = (event, sale) => {
     setAnchorEl(event.currentTarget);
@@ -94,6 +106,10 @@ const AdminDashboard = () => {
     };
   }, []);
 
+  if (loading) {
+    return <Typography>Loading...</Typography>; // Show loading state while data is being fetched
+  }
+
   return (
     <div style={{ backgroundColor: '#f5f5f5', minHeight: '100vh', padding: '2rem 0' }}>
       <Container>
@@ -111,7 +127,7 @@ const AdminDashboard = () => {
           <Menu
             anchorEl={userMenuAnchorEl}
             open={Boolean(userMenuAnchorEl)}
-            onClose={handleAdminMenuClose} // Use onClose to handle menu close
+            onClose={handleAdminMenuClose}
             PaperProps={{
               style: {
                 width: 200
@@ -207,61 +223,70 @@ const AdminDashboard = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {salesData.map((sale) => (
-                <TableRow key={sale.reference}>
-                  <TableCell>
-                    <Checkbox />
-                  </TableCell>
-                  <TableCell>{sale.customer}</TableCell>
-                  <TableCell>{sale.reference}</TableCell>
-                  <TableCell>{sale.date}</TableCell>
-                  <TableCell>
-                    <Chip
-                      label={sale.status}
-                      color={sale.status === 'Completed' ? 'success' : 'warning'}
-                    />
-                  </TableCell>
-                  <TableCell>${sale.total}</TableCell>
-                  <TableCell>${sale.paid}</TableCell>
-                  <TableCell>${sale.due}</TableCell>
-                  <TableCell>
-                    <Chip
-                      label={sale.paymentStatus}
-                      color={sale.paymentStatus === 'Paid' ? 'success' : 'error'}
-                    />
-                  </TableCell>
-                  <TableCell>{sale.biller}</TableCell>
-                  <TableCell>
-                    <IconButton onClick={(event) => handleClick(event, sale)}>
-                      <MoreVert />
-                    </IconButton>
-                    <Menu
-                      anchorEl={anchorEl}
-                      open={Boolean(anchorEl)}
-                      onClose={handleClose}
-                    >
-                      <MenuItem onClick={handleClose}>
-                        <Visibility /> Sale Detail
-                      </MenuItem>
-                      <MenuItem onClick={handleClose}>
-                        <Edit /> Edit Sale
-                      </MenuItem>
-                      <MenuItem onClick={handleClose}>
-                        <Receipt /> Show Payments
-                      </MenuItem>
-                      <MenuItem onClick={handleClose}>
-                        <Payment /> Create Payment
-                      </MenuItem>
-                      <MenuItem onClick={handleClose}>
-                        <Download /> Download PDF
-                      </MenuItem>
-                      <MenuItem onClick={handleClose}>
-                        <Delete /> Delete Sale
-                      </MenuItem>
-                    </Menu>
-                  </TableCell>
+               
+              {salesData.length > 0 ? (
+               
+                salesData.data.map((sale) => ( 
+                  <TableRow key={sale.referenceId}>
+                    
+                    <TableCell>
+                      <Checkbox />
+                    </TableCell>
+                    <TableCell>{sale.customerName}</TableCell>
+                    <TableCell>{sale.referenceId}</TableCell>
+                    <TableCell>{new Date(sale.localDateTime).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={sale.status}
+                        color={sale.status === 'Completed' ? 'success' : 'warning'}
+                      />
+                    </TableCell>
+                    <TableCell>${sale.grandTotal}</TableCell>
+                    <TableCell>${sale.paid}</TableCell>
+                    <TableCell>${sale.due}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={sale.paymentStatus}
+                        color={sale.paymentStatus === 'Paid' ? 'success' : 'error'}
+                      />
+                    </TableCell>
+                    <TableCell>{sale.biller}</TableCell>
+                    <TableCell>
+                      <IconButton onClick={(event) => handleClick(event, sale)}>
+                        <MoreVert />
+                      </IconButton>
+                      <Menu
+                        anchorEl={anchorEl}
+                        open={Boolean(anchorEl)}
+                        onClose={handleClose}
+                      >
+                        <MenuItem onClick={handleClose}>
+                          <Visibility /> Sale Detail
+                        </MenuItem>
+                        <MenuItem onClick={handleClose}>
+                          <Edit /> Edit Sale
+                        </MenuItem>
+                        <MenuItem onClick={handleClose}>
+                          <Receipt /> Show Payments
+                        </MenuItem>
+                        <MenuItem onClick={handleClose}>
+                          <Payment /> Create Payment
+                        </MenuItem>
+                        <MenuItem onClick={handleClose}>
+                          <Download /> Download PDF
+                        </MenuItem>
+                        <MenuItem onClick={handleClose}>
+                          <Delete /> Delete Sale
+                        </MenuItem>
+                      </Menu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={11}>No sales data available</TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </TableContainer>
