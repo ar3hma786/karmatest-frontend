@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -47,10 +47,11 @@ const salesData = [
 ];
 
 const AdminDashboard = () => {
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [selectedSale, setSelectedSale] = React.useState(null);
-  const [userMenuAnchorEl, setUserMenuAnchorEl] = React.useState(null);
-
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedSale, setSelectedSale] = useState(null);
+  const [userMenuAnchorEl, setUserMenuAnchorEl] = useState(null);
+  const userMenuRef = useRef(null);
+  
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -65,7 +66,7 @@ const AdminDashboard = () => {
   };
 
   const handleUserMenuClick = (event) => {
-    setUserMenuAnchorEl(event.currentTarget);
+    setUserMenuAnchorEl((prev) => (prev ? null : event.currentTarget));
   };
 
   const handleUserMenuClose = () => {
@@ -75,6 +76,23 @@ const AdminDashboard = () => {
       navigate("/");
     }, 1000);
   };
+
+  const handleAdminMenuClose = () => {
+    setUserMenuAnchorEl(null);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setUserMenuAnchorEl(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <div style={{ backgroundColor: '#f5f5f5', minHeight: '100vh', padding: '2rem 0' }}>
@@ -93,11 +111,13 @@ const AdminDashboard = () => {
           <Menu
             anchorEl={userMenuAnchorEl}
             open={Boolean(userMenuAnchorEl)}
+            onClose={handleAdminMenuClose} // Use onClose to handle menu close
             PaperProps={{
               style: {
                 width: 200
               },
             }}
+            ref={userMenuRef}
           >
             <MenuItem onClick={handleUserMenuClose}>Sign out</MenuItem>
           </Menu>
