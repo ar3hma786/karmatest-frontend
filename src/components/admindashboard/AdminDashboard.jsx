@@ -35,37 +35,19 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../state/authentication/Action';
-import { getSales } from '../state/sales/Action';
+import { getSales } from '../state/sales/Action'; // Import getSales action
 
 const AdminDashboard = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedSale, setSelectedSale] = useState(null);
   const [userMenuAnchorEl, setUserMenuAnchorEl] = useState(null);
-  const [salesData, setSalesData] = useState(useSelector((state) => state.adminSales)); // State for sales data
-  const [loading, setLoading] = useState(true); // State for loading
   const userMenuRef = useRef(null);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-   
-  useEffect(() => {
-    const fetchSalesData = async () => {
-      try {
-        const response = await dispatch(getSales());
-        if (response && response.payload) {
-          setSalesData(response.payload);
-          console.log(salesData);
-        }
-      } catch (error) {
-        console.error('Failed to fetch sales data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSalesData();
-  }, [dispatch]);
+  // Access sales data and loading state from Redux store
+  const { sales, loading, error } = useSelector((state) => state.adminSales);
 
   const handleClick = (event, sale) => {
     setAnchorEl(event.currentTarget);
@@ -85,7 +67,7 @@ const AdminDashboard = () => {
     setUserMenuAnchorEl(null);
     setTimeout(() => {
       dispatch(logout());
-      navigate("/");
+      navigate('/');
     }, 1000);
   };
 
@@ -94,6 +76,8 @@ const AdminDashboard = () => {
   };
 
   useEffect(() => {
+    dispatch(getSales()); // Dispatch getSales action on component mount
+
     const handleClickOutside = (event) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
         setUserMenuAnchorEl(null);
@@ -104,11 +88,7 @@ const AdminDashboard = () => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
-
-  if (loading) {
-    return <Typography>Loading...</Typography>; // Show loading state while data is being fetched
-  }
+  }, [dispatch]);
 
   return (
     <div style={{ backgroundColor: '#f5f5f5', minHeight: '100vh', padding: '2rem 0' }}>
@@ -127,10 +107,10 @@ const AdminDashboard = () => {
           <Menu
             anchorEl={userMenuAnchorEl}
             open={Boolean(userMenuAnchorEl)}
-            onClose={handleAdminMenuClose}
+            onClose={handleAdminMenuClose} // Use onClose to handle menu close
             PaperProps={{
               style: {
-                width: 200
+                width: 200,
               },
             }}
             ref={userMenuRef}
@@ -147,7 +127,7 @@ const AdminDashboard = () => {
             Manage Your Sales
           </Typography>
         </Box>
-        
+
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
           <TextField
             variant="outlined"
@@ -170,7 +150,7 @@ const AdminDashboard = () => {
               },
               '& .MuiInputBase-input': {
                 padding: '10px',
-              }
+              },
             }}
           />
 
@@ -205,36 +185,41 @@ const AdminDashboard = () => {
           </Box>
         </Box>
 
-        <TableContainer component={Paper} sx={{ boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 'bold' }} />
-                <TableCell sx={{ fontWeight: 'bold' }}>Customer Name</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Reference</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Date</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Grand Total</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Paid</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Due</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Payment Status</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Biller</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Action</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-               
-              {salesData.length > 0 ? (
-               
-                salesData.data.map((sale) => ( 
+        {loading ? (
+          <Typography variant="h6" align="center">
+            Loading...
+          </Typography>
+        ) : error ? (
+          <Typography variant="h6" align="center" color="error">
+            Error: {error}
+          </Typography>
+        ) : (
+          <TableContainer component={Paper} sx={{ boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: 'bold' }} />
+                  <TableCell sx={{ fontWeight: 'bold' }}>Customer Name</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Reference</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Date</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Grand Total</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Paid</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Due</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Payment Status</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Biller</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Action</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {sales.map((sale) => (
                   <TableRow key={sale.referenceId}>
-                    
                     <TableCell>
                       <Checkbox />
                     </TableCell>
                     <TableCell>{sale.customerName}</TableCell>
                     <TableCell>{sale.referenceId}</TableCell>
-                    <TableCell>{new Date(sale.localDateTime).toLocaleDateString()}</TableCell>
+                    <TableCell>{sale.localDateTime}</TableCell>
                     <TableCell>
                       <Chip
                         label={sale.status}
@@ -281,15 +266,11 @@ const AdminDashboard = () => {
                       </Menu>
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={11}>No sales data available</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
       </Container>
     </div>
   );
