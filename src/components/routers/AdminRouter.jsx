@@ -1,27 +1,30 @@
 import React from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Route, Routes, useLocation, matchPath } from 'react-router-dom';
 import Header from '../header/Header';
 import Footer from '../footer/Footer';
 import LoginForm from '../auth/LoginForm';
 import AdminDashboard from '../admindashboard/AdminDashboard';
 import AddSale from '../admindashboard/AddSale';
+import EditSale from '../admindashboard/EditSale';
 
 function AdminRouter() {
   const location = useLocation();
 
-  // Check if the current path is the Admin Dashboard
-  const isAdminDashboard = location.pathname === '/admin';
-  const isAddSale = location.pathname === '/add-sale'
+  const adminPaths = ['/admin', '/add-sale', '/update-sale/:saleId'];
+
+ 
+  const isAdminPage = adminPaths.some((path) => matchPath({ path, end: true }, location.pathname));
 
   return (
     <div>
-      {!isAdminDashboard && !isAddSale && <Header />}
+      {!isAdminPage && <Header />}
       <Routes>
         <Route exact path="/" element={<LoginForm />} />
         <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/add-sale" element={<AddSale/>} />
+        <Route path="/add-sale" element={<AddSale />} />
+        <Route path="/update-sale/:saleId" element={<EditSale />} /> {/* Include saleId as a parameter */}
       </Routes>
-      {!isAdminDashboard && !isAddSale && <Footer />}
+      {!isAdminPage && <Footer />}
     </div>
   );
 }

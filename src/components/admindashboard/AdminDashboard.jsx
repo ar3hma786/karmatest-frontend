@@ -49,6 +49,21 @@ const AdminDashboard = () => {
   // Access sales data and loading state from Redux store
   const { sales, loading, error } = useSelector((state) => state.adminSales);
 
+  useEffect(() => {
+    dispatch(getSales()); // Dispatch getSales action on component mount
+
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setUserMenuAnchorEl(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dispatch]);
+
   const handleClick = (event, sale) => {
     setAnchorEl(event.currentTarget);
     setSelectedSale(sale);
@@ -71,25 +86,6 @@ const AdminDashboard = () => {
     }, 1000);
   };
 
-  const handleAdminMenuClose = () => {
-    setUserMenuAnchorEl(null);
-  };
-
-  useEffect(() => {
-    dispatch(getSales()); // Dispatch getSales action on component mount
-
-    const handleClickOutside = (event) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
-        setUserMenuAnchorEl(null);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [dispatch]);
-
   const handleDeleteSale = () => {
     if (selectedSale) {
       dispatch(deleteSale(selectedSale.id));
@@ -98,9 +94,13 @@ const AdminDashboard = () => {
   };
 
   const handleAddSale = () => {
-    // Logic to add a new sale
-    // For example, you might navigate to a different page or show a form
     navigate('/add-sale'); // Navigate to add-sale page
+  };
+
+  const handleEditSale = () => {
+    if (selectedSale) {
+      navigate(`/update-sale/${selectedSale.id}`); // Navigate to update-sale page
+    }
   };
 
   return (
@@ -120,7 +120,7 @@ const AdminDashboard = () => {
           <Menu
             anchorEl={userMenuAnchorEl}
             open={Boolean(userMenuAnchorEl)}
-            onClose={handleAdminMenuClose} // Use onClose to handle menu close
+            onClose={handleUserMenuClose} // Use onClose to handle menu close
             PaperProps={{
               style: {
                 width: 200,
@@ -259,10 +259,10 @@ const AdminDashboard = () => {
                         open={Boolean(anchorEl)}
                         onClose={handleClose}
                       >
-                        <MenuItem onClick={handleClose}>
+                        <MenuItem onClick={() => navigate(`/sale/${sale.referenceId}`)}>
                           <Visibility /> Sale Detail
                         </MenuItem>
-                        <MenuItem onClick={handleClose}>
+                        <MenuItem onClick={handleEditSale}>
                           <Edit /> Edit Sale
                         </MenuItem>
                         <MenuItem onClick={handleClose}>

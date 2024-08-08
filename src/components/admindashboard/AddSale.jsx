@@ -31,9 +31,9 @@ const AddSale = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Dispatch action to add sale
+  
     dispatch(createSale(formData));
-    // Optionally, you might want to reset the form or navigate away
+  
     setFormData({
       customerName: '',
       referenceId: '',
@@ -49,7 +49,7 @@ const AddSale = () => {
   };
 
   const handleBack = () => {
-    navigate(-1); // Navigate back to the previous page
+    navigate(-1); 
   };
 
   return (
@@ -151,10 +151,10 @@ const AddSale = () => {
           size="small"
         />
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-          <Button type="submit" variant="contained" color="primary" size="small">
+          <Button type="submit" variant="contained" style={{backgroundColor: "black"}} size="small">
             Add Sale
           </Button>
-          <Button onClick={handleBack} variant="outlined" color="secondary" size="small">
+          <Button onClick={handleBack} variant="outlined" color="success" size="small">
             Back
           </Button>
         </Box>
